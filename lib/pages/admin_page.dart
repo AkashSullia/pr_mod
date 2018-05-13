@@ -2,48 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:pr_mod/pages/edit_post.dart';
-import 'package:sqljocky/sqljocky.dart';
-import 'package:sqljocky/utils.dart';
-import 'dart:async';
 
-
-class RepoPage extends StatefulWidget {
+class AdminPage extends StatefulWidget {
   final String username;
-  RepoPage({Key key, this.username}) : super(key: key);
+  AdminPage({Key key, this.username}) : super(key: key);
   @override
-  State createState() => new _RepoPageState(username: username);
+  State createState() => new _AdminPageState(username: username);
 }
 
-class _RepoPageState extends State<RepoPage> {
-  _RepoPageState({this.username});
+class _AdminPageState extends State<AdminPage> {
+  _AdminPageState({this.username});
   final String username;
-
-  Future _testDatabase() async{
-    print('In Database function');
-   ConnectionPool pool = new ConnectionPool(
-       host: '192.168.42.153',
-       port:3306,
-       user:'homestead',
-       password:'secret',
-       db:'PRmodule',
-       max:5);
-   print('connection successful: ${pool.toString()}');
-   var results = await pool.query('SELECT * FROM USERS');
-   print('results working');
-   results.forEach((row){
-    print('$row');
-   });
-   //var query = await query
-  }
+  var userset = ['Akash Sullia', 'Firebase User'];
   @override
   Widget build(BuildContext context) {
     final reference = FirebaseDatabase.instance
         .reference()
-        .child('users/')
-        .child('$username')
-        .child('posts/');
+        .child('users/');
 
-    Widget body = new Container(
+     Widget body = new Container(
       padding: new EdgeInsets.all(32.0),
       child: new Center(
         child: new Column(
@@ -96,12 +73,7 @@ class _RepoPageState extends State<RepoPage> {
                                 child: new Text('Delete'),
                                 onPressed: () {
                                   reference.child(snapshot.key).remove();
-                                }),
-                            new FlatButton(
-                              child: new Text('Test Database'),
-                              onPressed: (){
-                                _testDatabase();
-                              })
+                                })
                           ],
                         ),
                       ),

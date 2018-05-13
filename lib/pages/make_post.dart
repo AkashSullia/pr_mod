@@ -144,17 +144,20 @@ class _MakePostState extends State<MakePost> {
               ),
             ),
           ),
+          new Padding(padding: new EdgeInsets.all(10.0)),
           new Row(
             children: <Widget>[
               new IconButton(
                 icon: new Icon(Icons.camera),
                 onPressed: getImage,
               ),
-              new Center(
+              new Container(
+                height: 300.0,
+                width: 300.0,
                 child: _image == null
                     ? new Text('No image picked.')
                     : new Image.file(_image,
-                        fit: BoxFit.contain, height: 120.0, width: 120.0),
+                        fit: BoxFit.contain, height: 300.0, width: 300.0),
               ),
             ],
           ),

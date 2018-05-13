@@ -13,30 +13,60 @@ import 'package:firebase_storage/firebase_storage.dart';
 final googleSignIn = new GoogleSignIn();
 final analytics = new FirebaseAnalytics();
 final auth = FirebaseAuth.instance;
+//final DataSnapshot snapshot;
 final reference = FirebaseDatabase.instance.reference();
 
-class MakePost extends StatefulWidget {
-  //MakePost({Key key, this.username}) : super(key: key);
+class EditPost extends StatefulWidget {
+  final DataSnapshot snapshot;
+  EditPost({Key key, this.snapshot}) : super(key: key);
   @override
-  State createState() => new _MakePostState();
+  State createState() => new _EditPostState(snapshot: snapshot);
 }
 
-class _MakePostState extends State<MakePost> {
-  //_MakePostState({this.username});
-  //final String username;
-  final TextEditingController _textControllerTitle =
-      new TextEditingController();
-  final TextEditingController _textControllerBody = new TextEditingController();
+class _EditPostState extends State<EditPost> {
+  _EditPostState({this.snapshot});
+  final DataSnapshot snapshot;
+  TextEditingController _textControllerTitle;
+  TextEditingController _textControllerBody;
+
   bool _isComposing = false;
-  File _image;
+  Image _image; //= new File.fromUri(new Uri.dataFromString(imageUrl));
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
-      _image = image;
+      _image = new Image.file(image);
     });
   }
+
+//  StreamSubscription _subName;
+//
+//  @override
+//  void initState() {
+//    if (_textControllerTitle != null) {
+//      _textControllerTitle.clear();
+//    }
+//    if (_textControllerBody != null) {
+//      _textControllerBody.clear();
+//    }
+//    getNameStream(snapshot.key, _fn)
+//        .then((StreamSubscription s) => _subName = s);
+//  }
+//
+//  @override
+//  void dispose() {
+//    if (_subName != null) {
+//      _subName.cancel();
+//    }
+//    super.dispose();
+//  }
+//
+//  void _fn(String title, String body, String imageUrl) {
+//    _textControllerTitle.value =
+//        _textControllerTitle.value.copyWith(text: title);
+//    _textControllerBody.value = _textControllerTitle.value.copyWith(text: body);
+//  }
 
   Future<GoogleSignInAccount> _ensureLoggedIn() async {
     GoogleSignInAccount user = googleSignIn.currentUser;
@@ -59,6 +89,25 @@ class _MakePostState extends State<MakePost> {
     }
     return user;
   }
+
+//  Future<StreamSubscription<Event>> getNameStream(String key,
+//      void onData(String title, String body, String imageUrl)) async {
+//    GoogleSignInAccount user = await _ensureLoggedIn();
+//    StreamSubscription<Event> subscription = FirebaseDatabase.instance
+//        .reference()
+//        .child('users/')
+//        .child(user.displayName)
+//        .child('posts/')
+//        .child(snapshot.key)
+//        .onValue
+//        .listen((Event event) {
+//      String title = event.snapshot.value['title'] as String;
+//      String body = event.snapshot.value['body'] as String;
+//      String imageUrl = event.snapshot.value['imageUrl'] as String;
+//      onData(title, body, imageUrl);
+//    });
+//    return subscription;
+//  }
 
   Future<Null> _handlePost(String title, String body, File imageFile) async {
     _textControllerTitle.clear();
@@ -86,8 +135,8 @@ class _MakePostState extends State<MakePost> {
           .child('users/')
           .child(user.displayName)
           .child('posts/')
-          .push()
-          .set({
+          .child(snapshot.key)
+          .update({
         'title': title,
         'body': body,
         'imageUrl': imageUrl,
@@ -98,21 +147,28 @@ class _MakePostState extends State<MakePost> {
           .child('users/')
           .child(user.displayName)
           .child('posts/')
-          .push()
-          .set({
+          .child(snapshot.key)
+          .update({
         'title': title,
         'body': body,
         'timeStamp': new DateTime.now().toString(),
       });
     }
-    analytics.logEvent(name: 'added_post');
+    analytics.logEvent(name: 'edited_post');
   }
 
   @override
   Widget build(BuildContext context) {
+    Map map = snapshot.value;
+    String title = map['title'] as String;
+    String body = map['body'] as String;
+    String imageUrl = map['imageUrl'] as String;
+    _image = (imageUrl == null ? imageUrl : new Image.network(imageUrl));
+    _textControllerTitle = new TextEditingController();
+    _textControllerBody = new TextEditingController();
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Create post'),
+        title: new Text('Edit post'),
       ),
       body: new Column(
         children: <Widget>[
@@ -144,17 +200,19 @@ class _MakePostState extends State<MakePost> {
               ),
             ),
           ),
+          new Padding(padding: new EdgeInsets.all(10.0)),
           new Row(
             children: <Widget>[
               new IconButton(
                 icon: new Icon(Icons.camera),
                 onPressed: getImage,
               ),
-              new Center(
-                child: _image == null
-                    ? new Text('No image picked.')
-                    : new Image.file(_image,
-                        fit: BoxFit.contain, height: 120.0, width: 120.0),
+              new Container(
+                constraints:
+                    new BoxConstraints.expand(height: 300.0, width: 300.0),
+                height: 300.0,
+                width: 300.0,
+                child: _image == null ? new Text('No image picked.') : _image,
               ),
             ],
           ),

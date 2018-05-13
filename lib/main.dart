@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pr_mod/pages/home.dart';
 import 'package:pr_mod/pages/repo_page.dart';
 import 'package:pr_mod/pages/make_post.dart';
+import 'package:pr_mod/pages/edit_post.dart';
 
 void main() => runApp(new MyApp());
 
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
         '/Home': (BuildContext context) => new HomePage(),
         '/reporter_account': (BuildContext context) => new RepoPage(),
         '/make_post': (BuildContext context) => new MakePost(),
+        '/edit_post': (BuildContext context) => new EditPost(),
       },
       theme: new ThemeData(brightness: Brightness.dark),
       home: new HomePage(),
